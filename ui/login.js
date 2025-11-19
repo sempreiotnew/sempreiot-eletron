@@ -11,6 +11,7 @@ btn.addEventListener("click", async () => {
     const payload = result.token.split(".")[1];
     const decoded = JSON.parse(atob(payload));
     const dataToStore = {
+      login: email.value,
       token: result.token,
       type: result.tipo,
       expiresAt: decoded.exp * 1000, // convert seconds → milliseconds
@@ -23,7 +24,6 @@ btn.addEventListener("click", async () => {
 
     await window.api.connectMQTT(email.value, password.value);
 
-    window.api.subscribe("#");
     window.location.href = "home.html";
     // window.api.onMessage((msg) => {
     //   console.log("MQTT:", msg.topic, msg.message);

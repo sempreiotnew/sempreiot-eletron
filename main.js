@@ -41,6 +41,27 @@ ipcMain.handle("login", async (_, { email, password }) => {
   return res.json();
 });
 
+//GET DOCUMENT
+ipcMain.handle("getDocument", async (_, { login, token }) => {
+  const res = await fetch(
+    `https://sempreiot.ddns.net:444/documento/lista/contrato/${login}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    console.log(res);
+    throw new Error("Error getting documents");
+  }
+
+  return res.json();
+});
+
 // MQTT CONNECT
 ipcMain.handle("connect-mqtt", (_, { username, password }) => {
   return new Promise((resolve, reject) => {
@@ -61,7 +82,7 @@ ipcMain.handle("connect-mqtt", (_, { username, password }) => {
       reject(err);
     });
 
-    client.on("message", (topic, message) => {
+    client.on("message", (topic, message, packet) => {
       console.log("RECEIVED:", topic, message.toString());
 
       // FIX: ensure window exists and is not destroyed
@@ -69,6 +90,7 @@ ipcMain.handle("connect-mqtt", (_, { username, password }) => {
         mainWindow.webContents.send("mqtt-message", {
           topic,
           message: message.toString(),
+          retained: packet.retain,
         });
       } else {
         console.log("NO WINDOW AVAILABLE TO SEND MQTT MESSAGE");
@@ -87,4 +109,23 @@ ipcMain.handle("subscribe", (_, topic) => {
   });
 
   return "OK";
+});
+
+function createAlarmWindow() {
+  const alarmWin = new BrowserWindow({
+    width: 300,
+    height: 250,
+    title: "Alarm",
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+
+  alarmWin.loadFile(path.join(__dirname, "ui/alarm.html"));
+}
+
+ipcMain.handle("open-alarm", () => {
+  createAlarmWindow();
 });

@@ -1,20 +1,4 @@
-async function getUserData() {
-  const auth = localStorage.getItem("auth");
-  const data = JSON.parse(auth);
-  const token = await getToken();
-  console.log(token);
-  const documents = await window.api.getDocument(data.login, token);
-
-  console.log(documents);
-  documents.forEach((document) => {
-    document.devices.forEach((device) => {
-      window.api.subscribe(`${device.chipId}/#`);
-    });
-  });
-}
-
 async function getToken() {
-  console.log("pegar token");
   const auth = localStorage.getItem("auth");
   const data = JSON.parse(auth);
 
@@ -58,15 +42,3 @@ function isTokenExpired(expiresAt) {
   // Retorna true se não houver token ou se ocorrer algum erro na verificação
   return true;
 }
-
-getUserData();
-
-window.api.onMessage((msg) => {
-  console.log("MQTT:", msg.topic, msg.message);
-
-  if (msg.topic.includes("/alarm") && msg.message === "1" && !msg.retained) {
-    const audio = new Audio("newnotification.mp3");
-    audio.play().catch(() => {});
-    window.api.openAlarm();
-  }
-});
