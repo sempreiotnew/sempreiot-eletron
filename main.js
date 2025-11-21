@@ -10,8 +10,8 @@ let mainWindow = null; // FIX: store reference
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 400,
-    height: 380,
+    width: 700,
+    height: 480,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
