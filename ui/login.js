@@ -22,18 +22,18 @@ async function signIn(login, password) {
 
     const payload = result.token.split(".")[1];
     const decoded = JSON.parse(atob(payload));
+    const expireAt = new Date();
+    expireAt.setHours(expireAt.getHours() + 2).toLocaleString();
     const dataToStore = {
       login: login,
       password: password,
       token: result.token,
       type: result.tipo,
-      expiresAt: decoded.exp * 1000, // convert seconds → milliseconds
+      expiresAt: expireAt, // convert seconds → milliseconds
       createdAt: Date.now(),
     };
     localStorage.setItem("auth", JSON.stringify(dataToStore));
     console.log("SAVED:", dataToStore);
-
-    alert("Login OK!");
 
     await window.api.connectMQTT(login, password);
 

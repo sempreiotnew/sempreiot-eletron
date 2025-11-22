@@ -62,6 +62,27 @@ ipcMain.handle("getDocument", async (_, { login, token }) => {
   return res.json();
 });
 
+//GET DEVICE
+ipcMain.handle("getDevice", async (_, { chipId, token }) => {
+  const res = await fetch(
+    `https://sempreiot.ddns.net:444/dispositivo/listar/${chipId}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    console.log(res);
+    throw new Error("Error getting devices");
+  }
+
+  return res.json();
+});
+
 // MQTT CONNECT
 ipcMain.handle("connect-mqtt", (_, { username, password }) => {
   return new Promise((resolve, reject) => {
@@ -111,7 +132,7 @@ ipcMain.handle("subscribe", (_, topic) => {
   return "OK";
 });
 
-function createAlarmWindow() {
+function createAlarmWindow(descricao) {
   const alarmWin = new BrowserWindow({
     width: 300,
     height: 250,
@@ -123,9 +144,12 @@ function createAlarmWindow() {
     },
   });
 
-  alarmWin.loadFile(path.join(__dirname, "ui/alarm.html"));
+  //   alarmWin.loadFile(path.join(__dirname, "ui/alarm.html"));
+  alarmWin.loadFile(path.join(__dirname, "ui/alarm.html"), {
+    query: { descricao },
+  });
 }
 
-ipcMain.handle("open-alarm", () => {
-  createAlarmWindow();
+ipcMain.handle("open-alarm", (_, descricao) => {
+  createAlarmWindow(descricao);
 });

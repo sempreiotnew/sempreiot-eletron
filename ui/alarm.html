@@ -1,1 +1,10 @@
-<div>ALARM!!!!</div>
+<div id="alarmText">ALARM!!!</div>
+
+<script>
+  const data = window.api.getParams();
+
+  const alarmDiv = document.getElementById("alarmText");
+
+  // Put the received data inside the div
+  alarmDiv.textContent = `ALARM: ${data.descricao}`;
+</script>

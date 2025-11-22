@@ -14,29 +14,34 @@ async function getUserData() {
 }
 
 async function getToken() {
-  console.log("pegar token");
   const auth = localStorage.getItem("auth");
   const data = JSON.parse(auth);
+  console.log(data);
 
   if (isTokenExpired(data.expiresAt)) {
     console.log("ATENÇÃO - TOKEN EXPIRADO !!!!!");
+    const result = await window.api.login(data.login, data.password);
+
+    console.log(result);
+
+    const payload = result.token.split(".")[1];
+    const decoded = JSON.parse(atob(payload));
+    const expireAt = new Date();
+    expireAt.setHours(expireAt.getHours() + 2).toLocaleString();
+
+    const dataToStore = {
+      login: data.login,
+      password: data.password,
+      token: result.token,
+      type: result.tipo,
+      expiresAt: expireAt, // convert seconds → milliseconds
+      createdAt: Date.now(),
+    };
+    localStorage.setItem("auth", JSON.stringify(dataToStore));
+    console.log("SAVED:", dataToStore);
+
+    return result.token;
   }
-
-  //   const result = await window.api.login(data.email, data.password);
-
-  //   console.log(result);
-
-  //   const payload = result.token.split(".")[1];
-  //   const decoded = JSON.parse(atob(payload));
-  //   const dataToStore = {
-  //     login: email.value,
-  //     token: result.token,
-  //     type: result.tipo,
-  //     expiresAt: decoded.exp * 1000, // convert seconds → milliseconds
-  //     createdAt: Date.now(),
-  //   };
-  //   localStorage.setItem("auth", JSON.stringify(dataToStore));
-  //   console.log("SAVED:", dataToStore);
 
   return data.token;
 }
@@ -49,7 +54,7 @@ function isTokenExpired(expiresAt) {
 
     // Subtrai 2 horas da data de expiração
     const expirationThreshold = new Date();
-    expirationThreshold.setHours(expirationThreshold.getHours() - 4);
+    expirationThreshold.setMinutes(expirationThreshold.getMinutes() - 2);
 
     // Compara a data de expiração com a data atual
     return expireAt < expirationThreshold;
@@ -61,12 +66,17 @@ function isTokenExpired(expiresAt) {
 
 getUserData();
 
-window.api.onMessage((msg) => {
+window.api.onMessage(async (msg) => {
   console.log("MQTT:", msg.topic, msg.message);
 
   if (msg.topic.includes("/alarm") && msg.message === "1" && !msg.retained) {
-    const audio = new Audio("newnotification.mp3");
-    audio.play().catch(() => {});
-    window.api.openAlarm();
+    // const audio = new Audio("newnotification.mp3");
+    // audio.play().catch(() => {});
+    const token = await getToken();
+
+    const chipId = msg.topic.substring(0, msg.topic.indexOf("/"));
+    const res = await window.api.getDevice(chipId, token);
+
+    window.api.openAlarm(res.descricao);
   }
 });
