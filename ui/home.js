@@ -64,7 +64,7 @@ function isTokenExpired(expiresAt) {
   return true;
 }
 
-getUserData();
+// getUserData();
 
 window.api.onMessage(async (msg) => {
   console.log("MQTT:", msg.topic, msg.message);
@@ -79,4 +79,9 @@ window.api.onMessage(async (msg) => {
 
     window.api.openAlarm(res.descricao);
   }
+});
+
+window.api.onConnect(() => {
+  console.log("- MQTT connected from renderer");
+  getUserData();
 });

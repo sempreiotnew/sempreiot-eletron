@@ -93,9 +93,25 @@ ipcMain.handle("connect-mqtt", (_, { username, password }) => {
       wsOptions: { rejectUnauthorized: false },
     });
 
+    let mqttConnected = false;
+
     client.on("connect", () => {
+      mqttConnected = true;
       console.log("MQTT connected");
-      resolve("CONNECTED");
+
+      sendMQTTStatus();
+      resolve("CONNECTED"); // ✅ THIS LINE IS MANDATORY
+    });
+
+    function sendMQTTStatus() {
+      if (mqttConnected && mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send("mqtt-connected");
+      }
+    }
+
+    // When page finishes loading, resend status
+    mainWindow.webContents.on("did-finish-load", () => {
+      sendMQTTStatus();
     });
 
     client.on("error", (err) => {
@@ -109,7 +125,7 @@ ipcMain.handle("connect-mqtt", (_, { username, password }) => {
     });
 
     client.on("message", (topic, message, packet) => {
-      console.log("RECEIVED:", topic, message.toString());
+      //   console.log("RECEIVED:", topic, message.toString());
 
       // FIX: ensure window exists and is not destroyed
       if (mainWindow && !mainWindow.isDestroyed()) {
@@ -131,7 +147,7 @@ ipcMain.handle("subscribe", (_, topic) => {
 
   client.subscribe(topic, (err, granted) => {
     if (err) console.log("SUBSCRIBE ERROR:", err);
-    else console.log("SUBSCRIBED:", granted);
+    // else console.log("SUBSCRIBED:", granted);
   });
 
   return "OK";

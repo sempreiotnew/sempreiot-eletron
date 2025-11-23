@@ -10,6 +10,8 @@ contextBridge.exposeInMainWorld("api", {
   connectMQTT: (username, password) =>
     ipcRenderer.invoke("connect-mqtt", { username, password }),
 
+  onConnect: (callback) => ipcRenderer.on("mqtt-connected", () => callback()),
+
   subscribe: (topic) => ipcRenderer.invoke("subscribe", topic),
 
   onMessage: (callback) =>
