@@ -2,7 +2,7 @@ async function getUserData() {
   const auth = localStorage.getItem("auth");
   const data = JSON.parse(auth);
   const token = await getToken();
-  console.log(token);
+
   const documents = await window.api.getDocument(data.login, token);
 
   console.log(documents);
@@ -19,7 +19,7 @@ async function getToken() {
   console.log(data);
 
   if (isTokenExpired(data.expiresAt)) {
-    console.log("ATENÇÃO - TOKEN EXPIRADO !!!!!");
+    console.log("TOKEN EXPIRADO !!!!!");
     const result = await window.api.login(data.login, data.password);
 
     console.log(result);
@@ -27,7 +27,7 @@ async function getToken() {
     const payload = result.token.split(".")[1];
     const decoded = JSON.parse(atob(payload));
     const expireAt = new Date();
-    expireAt.setHours(expireAt.getHours() + 2).toLocaleString();
+    expireAt.getMinutes(expireAt.getMinutes() + 2).toLocaleString();
 
     const dataToStore = {
       login: data.login,
@@ -54,7 +54,7 @@ function isTokenExpired(expiresAt) {
 
     // Subtrai 2 horas da data de expiração
     const expirationThreshold = new Date();
-    expirationThreshold.setMinutes(expirationThreshold.getMinutes() - 2);
+    // expirationThreshold.setMinutes(expirationThreshold.getMinutes() - 2);
 
     // Compara a data de expiração com a data atual
     return expireAt < expirationThreshold;

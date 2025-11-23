@@ -103,6 +103,11 @@ ipcMain.handle("connect-mqtt", (_, { username, password }) => {
       reject(err);
     });
 
+    client.on("disconnect", (err) => {
+      console.log("MQTT DISCONNECTED! ", err);
+      reject(err);
+    });
+
     client.on("message", (topic, message, packet) => {
       console.log("RECEIVED:", topic, message.toString());
 
