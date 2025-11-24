@@ -1,3 +1,9 @@
+const btnSair = document.getElementById("btnSair");
+btnSair.addEventListener("click", async () => {
+  localStorage.removeItem("auth");
+  window.location.href = "login.html";
+});
+
 async function getUserData() {
   const auth = localStorage.getItem("auth");
   const data = JSON.parse(auth);
@@ -25,7 +31,6 @@ async function getToken() {
     console.log(result);
 
     const payload = result.token.split(".")[1];
-    const decoded = JSON.parse(atob(payload));
     const expireAt = new Date();
     expireAt.getMinutes(expireAt.getMinutes() + 2).toLocaleString();
 
