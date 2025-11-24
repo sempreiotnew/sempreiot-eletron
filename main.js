@@ -6,17 +6,15 @@ const mqtt = require("mqtt");
 const fetch = require("node-fetch");
 
 let client = null;
-let mainWindow = null;
+let mainWindow = null; // FIX: store reference
 
-// ======================================
-// SINGLE INSTANCE
-// ======================================
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
   app.quit();
 } else {
   app.on("second-instance", () => {
+    // Someone tried to open the app again, just show existing window
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore();
       mainWindow.show();
@@ -25,29 +23,29 @@ if (!gotTheLock) {
   });
 }
 
-// ======================================
-// AUTO LAUNCH ON SYSTEM START
-// ======================================
+// ================================
+// ✅ AUTO LAUNCH ON SYSTEM START
+// ================================
 app.setLoginItemSettings({
   openAtLogin: true,
   openAsHidden: true,
 });
 
 // ======================================
-// PREVENT APP FROM QUITTING
+// ✅ PREVENT APP FROM EVER QUITTING
 // ======================================
-app.on("window-all-closed", () => {
-  // Intentionally empty -> keeps background process alive
+app.on("window-all-closed", (e) => {
+  // Do nothing -> keeps app running safely
 });
 
 app.on("activate", () => {
-  if (mainWindow) mainWindow.show();
-  else createWindow();
+  if (mainWindow) {
+    mainWindow.show();
+  } else {
+    createWindow();
+  }
 });
 
-// ======================================
-// WINDOW CREATION
-// ======================================
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 700,
@@ -63,6 +61,7 @@ function createWindow() {
   mainWindow.webContents.openDevTools();
   mainWindow.loadFile(path.join(__dirname, "ui/login.html"));
 
+  // ✅ Close button now only HIDES the app
   mainWindow.on("close", (event) => {
     event.preventDefault();
     mainWindow.hide();
@@ -71,72 +70,70 @@ function createWindow() {
 
 app.whenReady().then(createWindow);
 
-// ======================================
-// UTILITIES
-// ======================================
-function safeSend(channel, payload) {
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send(channel, payload);
-  }
-}
-
-async function apiRequest(url, method, headers = {}, body = null) {
-  const res = await fetch(url, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
-
-  if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-  return res.json();
-}
-
-// ======================================
 // LOGIN
-// ======================================
 ipcMain.handle("login", async (_, { email, password }) => {
-  return apiRequest(
+  const res = await fetch(
     `https://sempreiot.ddns.net/auth/${btoa(email)}&${btoa(password)}`,
-    "POST",
-    { "Content-Type": "application/json" },
-    { email, password }
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    }
   );
+
+  if (!res.ok) throw new Error("Invalid credentials");
+
+  return res.json();
 });
 
-// ======================================
-// GET DOCUMENT
-// ======================================
+//GET DOCUMENT
 ipcMain.handle("getDocument", async (_, { login, token }) => {
-  return apiRequest(
+  const res = await fetch(
     `https://sempreiot.ddns.net:444/documento/lista/contrato/${login}`,
-    "GET",
     {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     }
   );
+
+  if (!res.ok) {
+    console.log(res);
+    throw new Error("Error getting documents");
+  }
+
+  return res.json();
 });
 
-// ======================================
-// GET DEVICE
-// ======================================
+//GET DEVICE
 ipcMain.handle("getDevice", async (_, { chipId, token }) => {
-  return apiRequest(
+  const res = await fetch(
     `https://sempreiot.ddns.net:444/dispositivo/listar/${chipId}`,
-    "GET",
     {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     }
   );
+
+  if (!res.ok) {
+    console.log(res);
+    throw new Error("Error getting devices");
+  }
+
+  return res.json();
 });
 
-// ======================================
 // MQTT CONNECT
-// ======================================
-ipcMain.handle("connect-mqtt", () => {
+ipcMain.handle("connect-mqtt", (_, { username, password }) => {
   return new Promise((resolve, reject) => {
     client = mqtt.connect("wss://sempreiot.ddns.net:9002/mqtt", {
+      username,
+      password,
       rejectUnauthorized: false,
       wsOptions: { rejectUnauthorized: false },
     });
@@ -146,8 +143,19 @@ ipcMain.handle("connect-mqtt", () => {
     client.on("connect", () => {
       mqttConnected = true;
       console.log("MQTT connected");
-      safeSend("mqtt-connected");
+
+      sendMQTTStatus();
       resolve("CONNECTED");
+    });
+
+    function sendMQTTStatus() {
+      if (mqttConnected && mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send("mqtt-connected");
+      }
+    }
+
+    mainWindow.webContents.on("did-finish-load", () => {
+      sendMQTTStatus();
     });
 
     client.on("error", (err) => {
@@ -156,36 +164,35 @@ ipcMain.handle("connect-mqtt", () => {
     });
 
     client.on("disconnect", (err) => {
-      console.log("MQTT DISCONNECTED:", err);
+      console.log("MQTT DISCONNECTED! ", err);
       reject(err);
     });
 
     client.on("message", (topic, message, packet) => {
-      safeSend("mqtt-message", {
-        topic,
-        message: message.toString(),
-        retained: packet.retain,
-      });
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send("mqtt-message", {
+          topic,
+          message: message.toString(),
+          retained: packet.retain,
+        });
+      } else {
+        console.log("NO WINDOW AVAILABLE TO SEND MQTT MESSAGE");
+      }
     });
   });
 });
 
-// ======================================
 // SUBSCRIBE
-// ======================================
 ipcMain.handle("subscribe", (_, topic) => {
   if (!client) return "NO_CLIENT";
 
-  client.subscribe(topic, (err) => {
+  client.subscribe(topic, (err, granted) => {
     if (err) console.log("SUBSCRIBE ERROR:", err);
   });
 
   return "OK";
 });
 
-// ======================================
-// ALARM WINDOW
-// ======================================
 function createAlarmWindow(descricao) {
   const alarmWin = new BrowserWindow({
     width: 300,
