@@ -1,28 +1,44 @@
 let documents = [];
 let sharedDevices = [];
 
+const btnReload = document.getElementById("btnReload");
+
+btnReload.addEventListener("click", async () => {
+  await unsubscribeAllDevices();
+  window.location.reload();
+});
+
 const btnSair = document.getElementById("btnSair");
 btnSair.addEventListener("click", async () => {
   localStorage.clear();
 
-  documents.forEach((document) => {
-    document.devices.forEach((device) => {
-      console.log(`documents unsubscribing ${device.chipId}`);
-      window.api.subscribe(`${device.chipId}/#`);
-    });
-  });
-
-  console.log(sharedDevices);
-
-  sharedDevices.forEach((shared) => {
-    shared.forEach((device) => {
-      console.log(`shared unsubscribing ${device.chipId}`);
-      window.api.unsubscribe(`${device.chipId}/#`);
-    });
-  });
-
+  await unsubscribeAllDevices();
   window.location.href = "login.html";
 });
+
+function unsubscribeAllDevices() {
+  return new Promise((resolve, reject) => {
+    try {
+      documents.forEach((document) => {
+        document.devices.forEach((device) => {
+          console.log(`documents unsubscribing ${device.chipId}`);
+          window.api.unsubscribe(`${device.chipId}/#`);
+        });
+      });
+
+      sharedDevices.forEach((shared) => {
+        shared.forEach((device) => {
+          console.log(`shared unsubscribing ${device.chipId}`);
+          window.api.unsubscribe(`${device.chipId}/#`);
+        });
+      });
+
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 
 async function getUserData() {
   const auth = localStorage.getItem("auth");
