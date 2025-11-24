@@ -195,11 +195,12 @@ ipcMain.handle("subscribe", (_, topic) => {
 
 function createAlarmWindow(descricao) {
   const alarmWin = new BrowserWindow({
-    width: 300,
-    height: 250,
+    width: 400,
+    height: 350,
     alwaysOnTop: true,
     modal: true,
     title: "ATENÇÃO ALARME 🚨",
+    fullscreen: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -214,6 +215,10 @@ function createAlarmWindow(descricao) {
   alarmWin.on("close", () => {
     alarmWin.destroy();
   });
+
+  //   alarmWin.once("ready-to-show", () => {
+  //     alarmWin.maximize();
+  //   });
 }
 
 ipcMain.handle("open-alarm", (_, descricao) => {
