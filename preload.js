@@ -6,6 +6,8 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.invoke("getDocument", { login, token }),
   getDevice: (chipId, token) =>
     ipcRenderer.invoke("getDevice", { chipId, token }),
+  getDeviceShared: (contrato, login, token) =>
+    ipcRenderer.invoke("getDeviceShared", { contrato, login, token }),
 
   connectMQTT: (username, password) =>
     ipcRenderer.invoke("connect-mqtt", { username, password }),
@@ -13,6 +15,7 @@ contextBridge.exposeInMainWorld("api", {
   onConnect: (callback) => ipcRenderer.on("mqtt-connected", () => callback()),
 
   subscribe: (topic) => ipcRenderer.invoke("subscribe", topic),
+  unsubscribe: (topic) => ipcRenderer.invoke("unsubscribe", topic),
 
   onMessage: (callback) =>
     ipcRenderer.on("mqtt-message", (event, data) => callback(data)),

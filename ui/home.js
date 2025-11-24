@@ -1,6 +1,26 @@
+let documents = [];
+let sharedDevices = [];
+
 const btnSair = document.getElementById("btnSair");
 btnSair.addEventListener("click", async () => {
   localStorage.clear();
+
+  documents.forEach((document) => {
+    document.devices.forEach((device) => {
+      console.log(`documents unsubscribing ${device.chipId}`);
+      window.api.subscribe(`${device.chipId}/#`);
+    });
+  });
+
+  console.log(sharedDevices);
+
+  sharedDevices.forEach((shared) => {
+    shared.forEach((device) => {
+      console.log(`shared unsubscribing ${device.chipId}`);
+      window.api.unsubscribe(`${device.chipId}/#`);
+    });
+  });
+
   window.location.href = "login.html";
 });
 
@@ -9,12 +29,57 @@ async function getUserData() {
   const data = JSON.parse(auth);
   const token = await getToken();
 
-  const documents = await window.api.getDocument(data.login, token);
+  documents = await window.api.getDocument(data.login, token);
+  const shared = documents[0].contratosCompartilhado;
 
   console.log(documents);
+
   documents.forEach((document) => {
     document.devices.forEach((device) => {
       window.api.subscribe(`${device.chipId}/#`);
+    });
+  });
+
+  shared.forEach(async (s) => {
+    const res = await window.api.getDeviceShared(
+      s.contratoShared,
+      data.login,
+      token
+    );
+
+    sharedDevices.push(res[0].devices);
+
+    res[0].devices.forEach((device) => {
+      window.api.subscribe(`${device.chipId}/#`);
+      console.log("subscribe");
+      console.log(device.chipId);
+    });
+  });
+
+  //   renderDevices(documents);
+}
+
+function renderDevices(documents) {
+  const container = document.getElementById("devicesList");
+  container.innerHTML = ""; // clear before re-render
+
+  documents.forEach((doc) => {
+    doc.devices.forEach((device) => {
+      const wrapper = document.createElement("div");
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = device.chipId;
+      checkbox.value = device.chipId;
+
+      const label = document.createElement("label");
+      label.htmlFor = device.chipId;
+      label.textContent = device.descricao || device.chipId;
+
+      wrapper.appendChild(checkbox);
+      wrapper.appendChild(label);
+
+      container.appendChild(wrapper);
     });
   });
 }
@@ -75,8 +140,6 @@ window.api.onMessage(async (msg) => {
   console.log("MQTT:", msg.topic, msg.message);
 
   if (msg.topic.includes("/alarm") && msg.message === "1" && !msg.retained) {
-    // const audio = new Audio("newnotification.mp3");
-    // audio.play().catch(() => {});
     const token = await getToken();
 
     const chipId = msg.topic.substring(0, msg.topic.indexOf("/"));

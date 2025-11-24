@@ -132,6 +132,27 @@ ipcMain.handle("getDevice", async (_, { chipId, token }) => {
   return res.json();
 });
 
+//GET DEVICE SHARED
+ipcMain.handle("getDeviceShared", async (_, { contrato, login, token }) => {
+  const res = await fetch(
+    `https://sempreiot.ddns.net:444/documento/lista/chave/contrato/${contrato}&${login}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    console.log(res);
+    throw new Error("Error getting devices shared");
+  }
+
+  return res.json();
+});
+
 // MQTT CONNECT
 ipcMain.handle("connect-mqtt", (_, { username, password }) => {
   return new Promise((resolve, reject) => {
@@ -192,6 +213,16 @@ ipcMain.handle("subscribe", (_, topic) => {
 
   client.subscribe(topic, (err, granted) => {
     if (err) console.log("SUBSCRIBE ERROR:", err);
+  });
+
+  return "OK";
+});
+
+ipcMain.handle("unsubscribe", (_, topic) => {
+  if (!client) return "NO_CLIENT";
+
+  client.unsubscribe(topic, (err, granted) => {
+    if (err) console.log("UNSUBSCRIBE ERROR:", err);
   });
 
   return "OK";
