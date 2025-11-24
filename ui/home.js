@@ -1,6 +1,6 @@
 const btnSair = document.getElementById("btnSair");
 btnSair.addEventListener("click", async () => {
-  localStorage.removeItem("auth");
+  localStorage.clear();
   window.location.href = "login.html";
 });
 

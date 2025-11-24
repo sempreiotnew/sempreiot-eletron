@@ -3,21 +3,72 @@
   <head>
     <meta charset="utf-8" />
     <title>Login</title>
+
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+        font-family: Arial, sans-serif;
+        background: white;
+      }
+
+      .container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .form {
+        width: 300px;
+        text-align: center;
+      }
+
+      .form img {
+        width: 180px;
+        margin-bottom: 20px;
+      }
+
+      .form input,
+      .form button {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+
+      .form button {
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      #status {
+        margin-top: 10px;
+        font-size: 14px;
+      }
+    </style>
   </head>
+
   <body>
-    <h2>Login</h2>
+    <div class="container">
+      <div class="form">
+        <img src="../logo_no_shadow.png" alt="Logo" />
 
-    <input id="email" placeholder="Email" value="36315113885" /><br /><br />
-    <input
-      id="password"
-      type="password"
-      placeholder="Password"
-      value="teste123"
-    /><br /><br />
+        <input id="email" placeholder="CPF / CNPJ" value="36315113885" />
+        <input
+          id="password"
+          type="password"
+          placeholder="Password"
+          value="teste123"
+        />
 
-    <button id="btnLogin">Login</button>
+        <button id="btnLogin">Login</button>
 
-    <p id="status"></p>
+        <p id="status"></p>
+      </div>
+    </div>
 
     <script src="login.js"></script>
   </body>
