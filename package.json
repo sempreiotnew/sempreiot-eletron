@@ -25,7 +25,7 @@
       ]
     },
     "win": {
-      "icon": "logo_no_shadow_512x512.ico",
+      "icon": "logo_no_shadow.ico",
       "target": [
         "nsis"
       ]

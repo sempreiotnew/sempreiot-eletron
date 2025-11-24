@@ -8,6 +8,10 @@ const fetch = require("node-fetch");
 let client = null;
 let mainWindow = null; // FIX: store reference
 
+if (process.platform === "win32") {
+  app.setAppUserModelId("com.sempreiot.app");
+}
+
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
