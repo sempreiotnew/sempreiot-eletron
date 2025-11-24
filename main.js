@@ -8,6 +8,21 @@ const fetch = require("node-fetch");
 let client = null;
 let mainWindow = null; // FIX: store reference
 
+// ================================
+// ✅ AUTO LAUNCH ON SYSTEM START
+// ================================
+app.setLoginItemSettings({
+  openAtLogin: true,
+  openAsHidden: true,
+});
+
+// ======================================
+// ✅ PREVENT APP FROM EVER QUITTING
+// ======================================
+app.on("window-all-closed", (e) => {
+  e.preventDefault(); // prevents app from closing
+});
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 700,
@@ -21,6 +36,12 @@ function createWindow() {
 
   mainWindow.webContents.openDevTools();
   mainWindow.loadFile(path.join(__dirname, "ui/login.html"));
+
+  // ✅ Close button now only HIDES the app
+  mainWindow.on("close", (event) => {
+    event.preventDefault();
+    mainWindow.hide();
+  });
 }
 
 app.whenReady().then(createWindow);
@@ -100,7 +121,7 @@ ipcMain.handle("connect-mqtt", (_, { username, password }) => {
       console.log("MQTT connected");
 
       sendMQTTStatus();
-      resolve("CONNECTED"); // ✅ THIS LINE IS MANDATORY
+      resolve("CONNECTED");
     });
 
     function sendMQTTStatus() {
@@ -109,7 +130,6 @@ ipcMain.handle("connect-mqtt", (_, { username, password }) => {
       }
     }
 
-    // When page finishes loading, resend status
     mainWindow.webContents.on("did-finish-load", () => {
       sendMQTTStatus();
     });
@@ -125,9 +145,6 @@ ipcMain.handle("connect-mqtt", (_, { username, password }) => {
     });
 
     client.on("message", (topic, message, packet) => {
-      //   console.log("RECEIVED:", topic, message.toString());
-
-      // FIX: ensure window exists and is not destroyed
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send("mqtt-message", {
           topic,
@@ -147,7 +164,6 @@ ipcMain.handle("subscribe", (_, topic) => {
 
   client.subscribe(topic, (err, granted) => {
     if (err) console.log("SUBSCRIBE ERROR:", err);
-    // else console.log("SUBSCRIBED:", granted);
   });
 
   return "OK";
@@ -165,7 +181,6 @@ function createAlarmWindow(descricao) {
     },
   });
 
-  //   alarmWin.loadFile(path.join(__dirname, "ui/alarm.html"));
   alarmWin.loadFile(path.join(__dirname, "ui/alarm.html"), {
     query: { descricao },
   });
