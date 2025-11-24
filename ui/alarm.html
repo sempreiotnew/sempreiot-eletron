@@ -1,10 +1,65 @@
-<div id="alarmText">ALARM!!!</div>
+<div id="alarmContainer">
+  <div id="alarmText"></div>
+  <div id="alarmDate"></div>
+  <img src="sirene.gif" id="sirene" alt="Siren" />
+</div>
+
+<style>
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+  }
+
+  #alarmContainer {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    background-color: red;
+  }
+
+  #sirene {
+    width: 120px;
+    margin-bottom: 10px;
+    margin-right: 20px;
+  }
+
+  #alarmDate {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: white;
+    font-weight: bold;
+  }
+
+  #alarmText {
+    font-size: 22px;
+    font-weight: bold;
+    color: white;
+  }
+</style>
 
 <script>
   const data = window.api.getParams();
 
   const alarmDiv = document.getElementById("alarmText");
+  const alarmDateDiv = document.getElementById("alarmDate");
 
-  // Put the received data inside the div
-  alarmDiv.textContent = `ALARM: ${data.descricao}`;
+  function formatDateTime(date) {
+    const pad = (n) => n.toString().padStart(2, "0");
+    return (
+      `${pad(date.getDate())}/${pad(
+        date.getMonth() + 1
+      )}/${date.getFullYear()} ` +
+      `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
+        date.getSeconds()
+      )}`
+    );
+  }
+
+  alarmDateDiv.textContent = formatDateTime(new Date());
+  alarmDiv.textContent = `${data.descricao}`;
 </script>

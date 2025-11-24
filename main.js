@@ -27,6 +27,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 700,
     height: 480,
+    icon: path.join(__dirname, "logo_no_shadow_512x512.ico"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -173,7 +174,7 @@ function createAlarmWindow(descricao) {
   const alarmWin = new BrowserWindow({
     width: 300,
     height: 250,
-    title: "Alarm",
+    title: "ATENÇÃO ALARME 🚨",
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -183,6 +184,10 @@ function createAlarmWindow(descricao) {
 
   alarmWin.loadFile(path.join(__dirname, "ui/alarm.html"), {
     query: { descricao },
+  });
+
+  alarmWin.on("closed", () => {
+    alarmWin.destroy();
   });
 }
 
