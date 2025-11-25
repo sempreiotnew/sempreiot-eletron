@@ -1,6 +1,23 @@
 const email = document.getElementById("email");
 const password = document.getElementById("password");
 const btn = document.getElementById("btnLogin");
+const loading = document.getElementById("loading");
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    btn.click();
+  }
+});
+
+function showLoading() {
+  loading.style.display = "block";
+  btn.style.display = "none";
+}
+
+function hideLoading() {
+  loading.style.display = "none";
+  btn.disabled = false;
+}
 
 function automaticLogin() {
   const auth = localStorage.getItem("auth");
@@ -8,6 +25,8 @@ function automaticLogin() {
 
   if (data) {
     console.log("Auto LOGIN");
+    email.value = data.login;
+    password.value = data.password;
     signIn(data.login, data.password);
   }
 }
@@ -15,6 +34,7 @@ function automaticLogin() {
 automaticLogin();
 
 async function signIn(login, password) {
+  showLoading();
   try {
     const result = await window.api.login(login, password);
 
@@ -36,7 +56,10 @@ async function signIn(login, password) {
 
     window.location.href = "home.html";
   } catch (err) {
-    alert("Login failed");
+    alert("Usuário ou senha incorretos");
+    btn.style.display = "block";
+  } finally {
+    hideLoading();
   }
 }
 

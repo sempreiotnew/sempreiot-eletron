@@ -58,6 +58,25 @@
         margin-top: 10px;
         font-size: 14px;
       }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #ddd;
+        border-top: 4px solid #152f55;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: auto;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     </style>
   </head>
 
@@ -66,14 +85,12 @@
       <div class="form">
         <img src="../logo_no_shadow.png" alt="Logo" />
 
-        <input id="email" placeholder="CPF / CNPJ" value="36315113885" />
-        <input
-          id="password"
-          type="password"
-          placeholder="Password"
-          value="sempre123"
-        />
+        <input id="email" placeholder="CPF / CNPJ" />
+        <input id="password" type="password" placeholder="Password" />
 
+        <div id="loading" style="display: none; margin-top: 15px">
+          <div class="spinner"></div>
+        </div>
         <button id="btnLogin">Login</button>
 
         <p id="status"></p>
