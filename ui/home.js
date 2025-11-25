@@ -80,9 +80,16 @@ async function getUserData() {
         token
       );
 
-      sharedDevices.push(res[0].devices);
+      const filteredDevices = res[0].devices
+        .map((device) => ({
+          ...device,
+          grupo: device.grupo.filter((g) => g.loginCelular === data.login),
+        }))
+        .filter((device) => device.grupo.length > 0);
 
-      res[0].devices.forEach((device) => {
+      sharedDevices.push(filteredDevices);
+
+      filteredDevices.forEach((device) => {
         window.api.subscribe(`${device.chipId}/#`);
       });
     })
