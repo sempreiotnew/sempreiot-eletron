@@ -2,11 +2,20 @@ let documents = [];
 let sharedDevices = [];
 
 const btnReload = document.getElementById("btnReload");
+const loading = document.getElementById("loading");
 
 btnReload.addEventListener("click", async () => {
   await unsubscribeAllDevices();
   window.location.reload();
 });
+
+function showLoading() {
+  loading.style.display = "block";
+}
+
+function hideLoading() {
+  loading.style.display = "none";
+}
 
 const btnSair = document.getElementById("btnSair");
 btnSair.addEventListener("click", async () => {
@@ -175,7 +184,15 @@ window.api.onMessage(async (msg) => {
   }
 });
 
-window.api.onConnect(() => {
+window.api.onConnect(async () => {
   console.log("- MQTT connected from renderer");
-  getUserData();
+  try {
+    showLoading();
+    await getUserData();
+  } catch (err) {
+    console.err(err);
+    console.log("something went wrong");
+  } finally {
+    hideLoading();
+  }
 });

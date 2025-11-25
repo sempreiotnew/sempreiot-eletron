@@ -10,10 +10,13 @@
     justify-content: center;
     margin-top: 12px;
     button {
+      width: 200px;
+      height: 40px;
       cursor: pointer;
       color: white;
       background-color: #152f55;
       border-radius: 12px;
+      font-weight: bold;
     }
   }
 
@@ -21,11 +24,33 @@
     display: flex;
     justify-content: flex-end;
     button {
+      width: 100px;
+      height: 30px;
       cursor: pointer;
       background-color: red;
       color: white;
       border-radius: 12px;
       border-color: transparent;
+      font-weight: bold;
+    }
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ddd;
+    border-top: 4px solid #152f55;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: auto;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
     }
   }
 </style>
@@ -39,7 +64,11 @@
 </div>
 
 <div class="leave">
-  <button id="btnSair">Sair</button>
+  <button id="btnSair">SAIR</button>
+</div>
+
+<div id="loading" style="display: none; margin-top: 15px">
+  <div class="spinner"></div>
 </div>
 <div id="devicesList"></div>
 
