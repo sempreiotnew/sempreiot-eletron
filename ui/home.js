@@ -1,5 +1,6 @@
 let documents = [];
 let sharedDevices = [];
+let mqttInitialized = false;
 
 const DEVICE_STATES = "deviceStates";
 let deviceStates = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
@@ -71,21 +72,21 @@ async function getUserData() {
     });
   });
 
-  shared.forEach(async (s) => {
-    const res = await window.api.getDeviceShared(
-      s.contratoShared,
-      data.login,
-      token
-    );
+  await Promise.all(
+    shared.map(async (s) => {
+      const res = await window.api.getDeviceShared(
+        s.contratoShared,
+        data.login,
+        token
+      );
 
-    sharedDevices.push(res[0].devices);
+      sharedDevices.push(res[0].devices);
 
-    res[0].devices.forEach((device) => {
-      window.api.subscribe(`${device.chipId}/#`);
-      console.log("subscribe");
-      console.log(device.chipId);
-    });
-  });
+      res[0].devices.forEach((device) => {
+        window.api.subscribe(`${device.chipId}/#`);
+      });
+    })
+  );
 
   renderDevices(documents);
 }
@@ -108,7 +109,9 @@ function renderDevices(documents) {
 
 function renderHtmlDevices(device) {
   const container = document.getElementById("devicesList");
-  const wrapper = document.createElement("div");
+
+  const row = document.createElement("div");
+  row.className = "device-row";
 
   const checkbox = document.createElement("input");
   checkbox.type = "checkbox";
@@ -116,29 +119,16 @@ function renderHtmlDevices(device) {
   checkbox.value = device.chipId;
 
   let deviceStored = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
-
   checkbox.checked = deviceStored[device.chipId] ?? true;
-  // if (deviceStored[device.chipId]) {
-  //   checkbox.checked = deviceStored[device.chipId];
-  // } else {
-  //   checkbox.checked = true;
-  // }
-
-  // let deviceStateLocal = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
-  // deviceStateLocal[device.chipId] = true;
-
-  // localStorage.setItem("deviceStates", JSON.stringify(deviceStateLocal));
-
-  // updateCheckBoxLocalStorage(device.chipId, true);
 
   const label = document.createElement("label");
   label.htmlFor = device.chipId;
   label.textContent = device.descricao || device.chipId;
 
-  wrapper.appendChild(checkbox);
-  wrapper.appendChild(label);
+  row.appendChild(checkbox);
+  row.appendChild(label);
 
-  container.appendChild(wrapper);
+  container.appendChild(row);
 
   checkbox.addEventListener("change", () => {
     updateCheckBoxLocalStorage(device.chipId, checkbox.checked);
@@ -217,6 +207,8 @@ window.api.onMessage(async (msg) => {
 });
 
 window.api.onConnect(async () => {
+  if (mqttInitialized) return; // ✅ prevents multiple executions
+  mqttInitialized = true;
   console.log("- MQTT connected from renderer");
   try {
     showLoading();

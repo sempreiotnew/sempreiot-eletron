@@ -53,6 +53,39 @@
       transform: rotate(360deg);
     }
   }
+
+  .devices-wrapper {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 500px;
+    margin-inline: auto;
+    font-family: Arial, sans-serif;
+  }
+
+  .devices-header {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    font-weight: bold;
+    padding: 8px 0;
+    border-bottom: 2px solid #ccc;
+    margin-bottom: 8px;
+  }
+
+  .device-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .device-row label {
+    cursor: pointer;
+  }
+
+  .devices-header span:first-child {
+    text-align: center;
+  }
 </style>
 
 <div class="logo">
@@ -70,6 +103,13 @@
 <div id="loading" style="display: none; margin-top: 15px">
   <div class="spinner"></div>
 </div>
-<div id="devicesList"></div>
+<div class="devices-wrapper">
+  <div class="devices-header">
+    <span>Silenciar</span>
+    <span>Nome do dispositivo</span>
+  </div>
+
+  <div id="devicesList"></div>
+</div>
 
 <script src="home.js"></script>
