@@ -1,7 +1,8 @@
 let documents = [];
 let sharedDevices = [];
-let deviceStates = {};
+
 const DEVICE_STATES = "deviceStates";
+let deviceStates = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
 
 localStorage.removeItem(DEVICE_STATES);
 localStorage.setItem(DEVICE_STATES, JSON.stringify(deviceStates));
@@ -113,14 +114,22 @@ function renderHtmlDevices(device) {
   checkbox.type = "checkbox";
   checkbox.id = device.chipId;
   checkbox.value = device.chipId;
-  checkbox.checked = true;
+
+  let deviceStored = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
+
+  checkbox.checked = deviceStored[device.chipId] ?? true;
+  // if (deviceStored[device.chipId]) {
+  //   checkbox.checked = deviceStored[device.chipId];
+  // } else {
+  //   checkbox.checked = true;
+  // }
 
   // let deviceStateLocal = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
   // deviceStateLocal[device.chipId] = true;
 
   // localStorage.setItem("deviceStates", JSON.stringify(deviceStateLocal));
 
-  updateCheckBoxLocalStorage(device.chipId, true);
+  // updateCheckBoxLocalStorage(device.chipId, true);
 
   const label = document.createElement("label");
   label.htmlFor = device.chipId;
@@ -200,7 +209,10 @@ window.api.onMessage(async (msg) => {
     const chipId = msg.topic.substring(0, msg.topic.indexOf("/"));
     const res = await window.api.getDevice(chipId, token);
 
-    window.api.openAlarm(res.descricao, chipId);
+    let deviceSettings = JSON.parse(localStorage.getItem("deviceStates")) || {};
+    const deviceLocal = deviceSettings[chipId];
+
+    window.api.openAlarm(res.descricao, chipId, deviceLocal ?? true);
   }
 });
 
