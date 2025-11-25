@@ -1,5 +1,10 @@
 let documents = [];
 let sharedDevices = [];
+let deviceStates = {};
+const DEVICE_STATES = "deviceStates";
+
+localStorage.removeItem(DEVICE_STATES);
+localStorage.setItem(DEVICE_STATES, JSON.stringify(deviceStates));
 
 const btnReload = document.getElementById("btnReload");
 const loading = document.getElementById("loading");
@@ -108,6 +113,14 @@ function renderHtmlDevices(device) {
   checkbox.type = "checkbox";
   checkbox.id = device.chipId;
   checkbox.value = device.chipId;
+  checkbox.checked = true;
+
+  // let deviceStateLocal = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
+  // deviceStateLocal[device.chipId] = true;
+
+  // localStorage.setItem("deviceStates", JSON.stringify(deviceStateLocal));
+
+  updateCheckBoxLocalStorage(device.chipId, true);
 
   const label = document.createElement("label");
   label.htmlFor = device.chipId;
@@ -117,6 +130,16 @@ function renderHtmlDevices(device) {
   wrapper.appendChild(label);
 
   container.appendChild(wrapper);
+
+  checkbox.addEventListener("change", () => {
+    updateCheckBoxLocalStorage(device.chipId, checkbox.checked);
+  });
+}
+
+function updateCheckBoxLocalStorage(chipId, checked) {
+  let deviceStateLocal = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
+  deviceStateLocal[chipId] = checked;
+  localStorage.setItem("deviceStates", JSON.stringify(deviceStateLocal));
 }
 
 async function getToken() {
@@ -130,7 +153,6 @@ async function getToken() {
 
     console.log(result);
 
-    const payload = result.token.split(".")[1];
     const expireAt = new Date();
     expireAt.getMinutes(expireAt.getMinutes() + 2).toLocaleString();
 
@@ -169,10 +191,8 @@ function isTokenExpired(expiresAt) {
   return true;
 }
 
-// getUserData();
-
 window.api.onMessage(async (msg) => {
-  console.log("MQTT:", msg.topic, msg.message);
+  // console.log("MQTT:", msg.topic, msg.message);
 
   if (msg.topic.includes("/alarm") && msg.message === "1" && !msg.retained) {
     const token = await getToken();
@@ -180,7 +200,7 @@ window.api.onMessage(async (msg) => {
     const chipId = msg.topic.substring(0, msg.topic.indexOf("/"));
     const res = await window.api.getDevice(chipId, token);
 
-    window.api.openAlarm(res.descricao);
+    window.api.openAlarm(res.descricao, chipId);
   }
 });
 

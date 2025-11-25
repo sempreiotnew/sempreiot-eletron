@@ -20,7 +20,8 @@ contextBridge.exposeInMainWorld("api", {
   onMessage: (callback) =>
     ipcRenderer.on("mqtt-message", (event, data) => callback(data)),
 
-  openAlarm: (descricao) => ipcRenderer.invoke("open-alarm", descricao),
+  openAlarm: (descricao, chipId) =>
+    ipcRenderer.invoke("open-alarm", descricao, chipId),
 
   getParams: () => {
     const urlParams = new URLSearchParams(window.location.search);

@@ -228,7 +228,7 @@ ipcMain.handle("unsubscribe", (_, topic) => {
   return "OK";
 });
 
-function createAlarmWindow(descricao) {
+function createAlarmWindow(descricao, chipId) {
   const alarmWin = new BrowserWindow({
     width: 400,
     height: 350,
@@ -244,7 +244,7 @@ function createAlarmWindow(descricao) {
   });
 
   alarmWin.loadFile(path.join(__dirname, "ui/alarm.html"), {
-    query: { descricao },
+    query: { descricao, chipId },
   });
 
   alarmWin.on("close", () => {
@@ -256,6 +256,6 @@ function createAlarmWindow(descricao) {
   //   });
 }
 
-ipcMain.handle("open-alarm", (_, descricao) => {
-  createAlarmWindow(descricao);
+ipcMain.handle("open-alarm", (_, descricao, chipId) => {
+  createAlarmWindow(descricao, chipId);
 });
