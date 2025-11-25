@@ -72,32 +72,42 @@ async function getUserData() {
     });
   });
 
-  //   renderDevices(documents);
+  renderDevices(documents);
 }
 
 function renderDevices(documents) {
   const container = document.getElementById("devicesList");
-  container.innerHTML = ""; // clear before re-render
-
+  container.innerHTML = "";
   documents.forEach((doc) => {
     doc.devices.forEach((device) => {
-      const wrapper = document.createElement("div");
-
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.id = device.chipId;
-      checkbox.value = device.chipId;
-
-      const label = document.createElement("label");
-      label.htmlFor = device.chipId;
-      label.textContent = device.descricao || device.chipId;
-
-      wrapper.appendChild(checkbox);
-      wrapper.appendChild(label);
-
-      container.appendChild(wrapper);
+      renderHtmlDevices(device);
     });
   });
+
+  sharedDevices.forEach((shared) => {
+    shared.forEach((device) => {
+      renderHtmlDevices(device);
+    });
+  });
+}
+
+function renderHtmlDevices(device) {
+  const container = document.getElementById("devicesList");
+  const wrapper = document.createElement("div");
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.id = device.chipId;
+  checkbox.value = device.chipId;
+
+  const label = document.createElement("label");
+  label.htmlFor = device.chipId;
+  label.textContent = device.descricao || device.chipId;
+
+  wrapper.appendChild(checkbox);
+  wrapper.appendChild(label);
+
+  container.appendChild(wrapper);
 }
 
 async function getToken() {

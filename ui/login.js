@@ -19,9 +19,6 @@ async function signIn(login, password) {
     const result = await window.api.login(login, password);
 
     console.log(result);
-
-    const payload = result.token.split(".")[1];
-    const decoded = JSON.parse(atob(payload));
     const expireAt = new Date();
     expireAt.getMinutes(expireAt.getMinutes() + 2).toLocaleString();
     const dataToStore = {
@@ -29,7 +26,7 @@ async function signIn(login, password) {
       password: password,
       token: result.token,
       type: result.tipo,
-      expiresAt: expireAt, // convert seconds → milliseconds
+      expiresAt: expireAt,
       createdAt: Date.now(),
     };
     localStorage.setItem("auth", JSON.stringify(dataToStore));
