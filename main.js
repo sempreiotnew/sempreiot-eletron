@@ -27,6 +27,22 @@ if (!gotTheLock) {
   });
 }
 
+//ABOUT
+
+app.whenReady().then(() => {
+  app.setAboutPanelOptions({
+    applicationName: "Sempre IoT - Alarmes",
+    applicationVersion: "1.0.0",
+    copyright: "© 2025 Sempre IoT",
+    authors: ["Talles Augusto"],
+    website: "https://www.sempreiot.com.br",
+    iconPath: path.join(__dirname, "logo_no_shadow_512x512.png"),
+  });
+});
+
+//Name
+app.setName("Sempre IoT - Alarmes");
+
 // ================================
 // ✅ AUTO LAUNCH ON SYSTEM START
 // ================================
@@ -52,8 +68,8 @@ app.on("activate", () => {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 700,
-    height: 480,
+    width: 800,
+    height: 600,
     icon: path.join(__dirname, "logo_no_shadow_512x512.ico"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -62,7 +78,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.webContents.openDevTools();
+  //   mainWindow.webContents.openDevTools();
   mainWindow.loadFile(path.join(__dirname, "ui/login.html"));
 
   // ✅ Close button now only HIDES the app
@@ -250,10 +266,6 @@ function createAlarmWindow(descricao, chipId, active) {
   alarmWin.on("close", () => {
     alarmWin.destroy();
   });
-
-  //   alarmWin.once("ready-to-show", () => {
-  //     alarmWin.maximize();
-  //   });
 }
 
 ipcMain.handle("open-alarm", (_, descricao, chipId, active) => {

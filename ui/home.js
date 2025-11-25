@@ -1,7 +1,7 @@
 let documents = [];
 let sharedDevices = [];
 let mqttInitialized = false;
-
+document.title = "Sempre IoT - Alarmes";
 const DEVICE_STATES = "deviceStates";
 let deviceStates = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
 
@@ -64,8 +64,6 @@ async function getUserData() {
   documents = await window.api.getDocument(data.login, token);
   const shared = documents[0].contratosCompartilhado;
 
-  console.log(documents);
-
   documents.forEach((document) => {
     document.devices.forEach((device) => {
       window.api.subscribe(`${device.chipId}/#`);
@@ -124,6 +122,7 @@ function renderHtmlDevices(device) {
   checkbox.type = "checkbox";
   checkbox.id = device.chipId;
   checkbox.value = device.chipId;
+  checkbox.style.cursor = "pointer";
 
   let deviceStored = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
   checkbox.checked = deviceStored[device.chipId] ?? true;
@@ -151,13 +150,10 @@ function updateCheckBoxLocalStorage(chipId, checked) {
 async function getToken() {
   const auth = localStorage.getItem("auth");
   const data = JSON.parse(auth);
-  console.log(data);
 
   if (isTokenExpired(data.expiresAt)) {
     console.log("TOKEN EXPIRADO !!!!!");
     const result = await window.api.login(data.login, data.password);
-
-    console.log(result);
 
     const expireAt = new Date();
     expireAt.getMinutes(expireAt.getMinutes() + 2).toLocaleString();
@@ -171,7 +167,6 @@ async function getToken() {
       createdAt: Date.now(),
     };
     localStorage.setItem("auth", JSON.stringify(dataToStore));
-    console.log("SAVED:", dataToStore);
 
     return result.token;
   }

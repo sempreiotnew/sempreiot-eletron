@@ -1,5 +1,6 @@
 {
   "name": "sempreiot-electron",
+  "productName": "Sempre IoT - Alarmes",
   "version": "1.0.0",
   "description": "SempreIOT cross-platform Electron app",
   "main": "main.js",
@@ -18,7 +19,7 @@
       "!node_modules/.cache/**"
     ],
     "mac": {
-      "icon": "logo_no_shadow_512x512.ico",
+      "icon": "icon.icns",
       "target": [
         "dmg",
         "zip"
