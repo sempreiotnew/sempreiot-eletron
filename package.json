@@ -4,6 +4,10 @@
   "version": "1.0.0",
   "description": "SempreIOT cross-platform Electron app",
   "main": "main.js",
+  "author": {
+    "name": "Talles Rocha",
+    "email": "talles@talontech.com.br"
+  },
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder",

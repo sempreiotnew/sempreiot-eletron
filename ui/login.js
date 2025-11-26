@@ -52,9 +52,9 @@ function automaticLogin() {
 
   if (data) {
     console.log("Auto LOGIN");
-    email.value = data.login;
+    email.value = getCpfCnpjFormmated(data.login);
     password.value = data.password;
-    signIn(rawValueCpfCnpj, data.password);
+    signIn(data.login, data.password);
   }
 }
 

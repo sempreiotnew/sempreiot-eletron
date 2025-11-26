@@ -97,20 +97,48 @@ async function getUserData() {
 }
 
 function renderDevices(documents) {
-  const container = document.getElementById("devicesList");
-  container.innerHTML = "";
+  // const container = document.getElementById("devicesList");
+  // container.innerHTML = "";
+  allDevices = []; // reset
   documents.forEach((doc) => {
     doc.devices.forEach((device) => {
-      renderHtmlDevices(device);
+      // renderHtmlDevices(device);
+      allDevices.push(device);
     });
   });
 
   sharedDevices.forEach((shared) => {
     shared.forEach((device) => {
-      renderHtmlDevices(device);
+      // renderHtmlDevices(device);
+      allDevices.push(device);
     });
   });
+
+  renderFilteredDevices(allDevices);
 }
+
+function renderFilteredDevices(devices) {
+  const container = document.getElementById("devicesList");
+  container.innerHTML = "";
+
+  devices.forEach((device) => {
+    renderHtmlDevices(device);
+  });
+}
+const searchInput = document.getElementById("deviceSearch");
+
+searchInput.addEventListener("input", () => {
+  const term = searchInput.value.toLowerCase().trim();
+
+  const filtered = allDevices.filter((device) => {
+    const name = (device.descricao || "").toLowerCase();
+    const chip = (device.chipId || "").toLowerCase();
+
+    return name.includes(term) || chip.includes(term);
+  });
+
+  renderFilteredDevices(filtered);
+});
 
 function renderHtmlDevices(device) {
   const container = document.getElementById("devicesList");

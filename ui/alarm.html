@@ -40,6 +40,26 @@
     font-weight: bold;
     color: white;
   }
+
+  #closeAlarmBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: white;
+    color: red;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  #closeAlarmBtn:hover {
+    background: #ffdddd;
+  }
 </style>
 
 <script>
@@ -62,5 +82,15 @@
 
   alarmDateDiv.textContent = formatDateTime(new Date());
   alarmDiv.textContent = `${data.descricao}`;
+</script>
+
+<button id="closeAlarmBtn">X</button>
+
+<script>
+  const closeBtn = document.getElementById("closeAlarmBtn");
+
+  closeBtn.addEventListener("click", () => {
+    window.close(); // Closes the alarm window in Electron
+  });
 </script>
 <script src="alarm.js"></script>
