@@ -20,10 +20,16 @@
     "productName": "sempreiot",
     "files": [
       "**/*",
-      "!node_modules/.cache/**"
+      "!node_modules/.cache/**",
+      "!dist/**"
     ],
     "mac": {
       "icon": "icon.icns",
+      "category": "public.app-category.utilities",
+      "identity": "TALLES AUGUST0 FERREIRA DA ROCHA (AMSA346LX4)",
+      "hardenedRuntime": true,
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist",
       "target": [
         "dmg",
         "zip"
@@ -48,7 +54,9 @@
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {
-    "electron": "^32.0.0",
-    "electron-builder": "^24.13.3"
+    "@electron/notarize": "^3.1.1",
+    "electron": "^30.5.1",
+    "electron-builder": "^24.13.3",
+    "electron-packager": "^17.1.2"
   }
 }
