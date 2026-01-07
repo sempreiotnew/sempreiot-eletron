@@ -77,6 +77,7 @@ function createWindow() {
       nodeIntegration: false,
     },
   });
+  mainWindow.maximize();
 
   //   mainWindow.webContents.openDevTools();
   mainWindow.loadFile(path.join(__dirname, "ui/login.html"));
@@ -244,14 +245,27 @@ ipcMain.handle("unsubscribe", (_, topic) => {
   return "OK";
 });
 
-function createAlarmWindow(descricao, chipId, active) {
+ipcMain.on("silent-device", (event, chipId) => {
+  console.log(`Silent chipId: ${chipId}`);
+
+  // Forward the chipId to all renderer processes
+  mainWindow.webContents.send("silent-device", chipId);
+});
+
+ipcMain.on("silent-all", (event) => {
+  console.log(`Silent all devices`);
+
+  // Forward the chipId to all renderer processes
+  mainWindow.webContents.send("silent-all");
+});
+function createAlarmWindow(descricao, chipId) {
   const alarmWin = new BrowserWindow({
-    width: 400,
-    height: 350,
+    width: 500,
+    height: 450,
     alwaysOnTop: true,
     modal: true,
     title: "ATENÇÃO ALARME 🚨",
-    fullscreen: active,
+    fullscreen: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -268,6 +282,7 @@ function createAlarmWindow(descricao, chipId, active) {
   });
 }
 
-ipcMain.handle("open-alarm", (_, descricao, chipId, active) => {
-  createAlarmWindow(descricao, chipId, active);
+ipcMain.handle("open-alarm", (_, descricao, chipId, silent) => {
+  console.log("teste");
+  silent ? null : createAlarmWindow(descricao, chipId);
 });

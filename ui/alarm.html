@@ -1,14 +1,9 @@
-<div id="alarmContainer">
-  <div id="alarmText"></div>
-  <div id="alarmDate"></div>
-  <img src="sirene.gif" id="sirene" alt="Siren" />
-</div>
-
 <style>
   html,
   body {
     height: 100%;
     margin: 0;
+    position: relative;
   }
 
   #alarmContainer {
@@ -57,10 +52,85 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   }
 
+  #closeAlarmBtn {
+    z-index: 1000;
+  }
+
   #closeAlarmBtn:hover {
     background: #ffdddd;
   }
+
+  .alarm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+    width: 360px;
+  }
+
+  .alarm-btn {
+    padding: 14px 18px;
+    border-radius: 14px;
+    border: none;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+  }
+
+  /* Silenciar este dispositivo */
+  .alarm-btn.single {
+    background-color: white;
+    color: #b00000;
+  }
+
+  .alarm-btn.single:hover {
+    background-color: #ffe5e5;
+  }
+
+  /* Silenciar todos */
+  .alarm-btn.all {
+    background-color: #b00000;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .alarm-btn.all:hover {
+    background-color: #8f0000;
+    transform: scale(1.03);
+  }
+
+  .alarm-btn:active {
+    transform: scale(0.97);
+  }
+
+  #alarmStatus {
+    margin-top: 25px;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+  }
 </style>
+
+<div id="alarmContainer">
+  <div id="alarmText"></div>
+  <div id="alarmDate"></div>
+  <img src="sirene.gif" id="sirene" alt="Siren" />
+
+  <div class="alarm-actions">
+    <button id="btnSilent" class="alarm-btn single">
+      🔕 Silenciar este dispositivo
+    </button>
+
+    <button id="btnSilentAll" class="alarm-btn all">
+      🔇 Silenciar TODOS dispositivos
+    </button>
+  </div>
+
+  <div id="alarmStatus" style="display: none"></div>
+</div>
 
 <script>
   const data = window.api.getParams();
@@ -86,11 +156,4 @@
 
 <button id="closeAlarmBtn">X</button>
 
-<script>
-  const closeBtn = document.getElementById("closeAlarmBtn");
-
-  closeBtn.addEventListener("click", () => {
-    window.close(); // Closes the alarm window in Electron
-  });
-</script>
 <script src="alarm.js"></script>

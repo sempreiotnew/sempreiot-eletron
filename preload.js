@@ -20,11 +20,18 @@ contextBridge.exposeInMainWorld("api", {
   onMessage: (callback) =>
     ipcRenderer.on("mqtt-message", (event, data) => callback(data)),
 
-  openAlarm: (descricao, chipId, active) =>
-    ipcRenderer.invoke("open-alarm", descricao, chipId, active),
+  openAlarm: (descricao, chipId, silent) =>
+    ipcRenderer.invoke("open-alarm", descricao, chipId, silent),
 
   getParams: () => {
     const urlParams = new URLSearchParams(window.location.search);
     return Object.fromEntries(urlParams.entries());
   },
+
+  sendSilentDevice: (chipId) => ipcRenderer.send("silent-device", chipId),
+  sendSilentAll: () => ipcRenderer.send("silent-all"),
+  onSilentAll: (callback) =>
+    ipcRenderer.on("silent-all", (event) => callback()),
+  onSilentDevice: (callback) =>
+    ipcRenderer.on("silent-device", (event, chipId) => callback(chipId)),
 });

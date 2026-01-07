@@ -11,6 +11,25 @@ localStorage.setItem(DEVICE_STATES, JSON.stringify(deviceStates));
 const btnReload = document.getElementById("btnReload");
 const loading = document.getElementById("loading");
 
+window.api.onSilentDevice((chipId) => {
+  console.log(`Received silent device event for chipId: ${chipId}`);
+  updateCheckBoxLocalStorage(chipId, true);
+  window.location.reload();
+});
+
+window.api.onSilentAll(() => {
+  console.log(`Received silent device event for ALL`);
+  const checkAllCheckbox = document.getElementById("checkAll");
+  if (checkAllCheckbox) {
+    // Force the checkbox to be checked (true)
+    checkAllCheckbox.checked = true;
+
+    // Manually dispatch the change event
+    checkAllCheckbox.dispatchEvent(new Event("change"));
+  }
+  // window.location.reload();
+});
+
 btnReload.addEventListener("click", async () => {
   await unsubscribeAllDevices();
   window.location.reload();
@@ -153,7 +172,7 @@ function renderHtmlDevices(device) {
   checkbox.style.cursor = "pointer";
 
   let deviceStored = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
-  checkbox.checked = deviceStored[device.chipId] ?? true;
+  checkbox.checked = deviceStored[device.chipId] ?? false;
 
   const label = document.createElement("label");
   label.htmlFor = device.chipId;
@@ -166,8 +185,32 @@ function renderHtmlDevices(device) {
 
   checkbox.addEventListener("change", () => {
     updateCheckBoxLocalStorage(device.chipId, checkbox.checked);
+
+    const all = document.querySelectorAll(
+      "#devicesList input[type='checkbox']"
+    );
+    const checked = document.querySelectorAll(
+      "#devicesList input[type='checkbox']:checked"
+    );
+
+    document.getElementById("checkAll").checked = all.length === checked.length;
   });
 }
+
+//Silent all
+document.getElementById("checkAll").addEventListener("change", (e) => {
+  const checked = e.target.checked;
+  const deviceStates = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
+
+  document
+    .querySelectorAll("#devicesList input[type='checkbox']")
+    .forEach((cb) => {
+      cb.checked = checked;
+      deviceStates[cb.id] = checked;
+    });
+
+  localStorage.setItem(DEVICE_STATES, JSON.stringify(deviceStates));
+});
 
 function updateCheckBoxLocalStorage(chipId, checked) {
   let deviceStateLocal = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
@@ -231,7 +274,6 @@ window.api.onMessage(async (msg) => {
 
     let deviceSettings = JSON.parse(localStorage.getItem("deviceStates")) || {};
     const deviceLocal = deviceSettings[chipId];
-
     window.api.openAlarm(res.descricao, chipId, deviceLocal ?? true);
   }
 });
