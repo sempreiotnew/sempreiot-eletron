@@ -274,7 +274,7 @@ window.api.onMessage(async (msg) => {
 
     let deviceSettings = JSON.parse(localStorage.getItem("deviceStates")) || {};
     const deviceLocal = deviceSettings[chipId];
-    window.api.openAlarm(res.descricao, chipId, deviceLocal ?? true);
+    window.api.openAlarm(res.descricao, chipId, deviceLocal ?? false);
   }
 });
 

@@ -245,6 +245,10 @@ ipcMain.handle("unsubscribe", (_, topic) => {
   return "OK";
 });
 
+ipcMain.handle("open-alarm", (_, descricao, chipId, silent) => {
+  silent ? null : createAlarmWindow(descricao, chipId);
+});
+
 ipcMain.on("silent-device", (event, chipId) => {
   console.log(`Silent chipId: ${chipId}`);
 
@@ -281,8 +285,3 @@ function createAlarmWindow(descricao, chipId) {
     alarmWin.destroy();
   });
 }
-
-ipcMain.handle("open-alarm", (_, descricao, chipId, silent) => {
-  console.log("teste");
-  silent ? null : createAlarmWindow(descricao, chipId);
-});
