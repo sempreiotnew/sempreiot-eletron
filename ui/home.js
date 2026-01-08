@@ -2,11 +2,31 @@ let documents = [];
 let sharedDevices = [];
 let mqttInitialized = false;
 document.title = "Sempre IoT - Alarmes";
-const DEVICE_STATES = "deviceStates";
-let deviceStates = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
 
-localStorage.removeItem(DEVICE_STATES);
-localStorage.setItem(DEVICE_STATES, JSON.stringify(deviceStates));
+/* ===================== */
+/* USER-SCOPED STORAGE */
+/* ===================== */
+function getUserDeviceStatesKey() {
+  const auth = JSON.parse(localStorage.getItem("auth"));
+  if (!auth?.login) return "deviceStates_anonymous";
+  return `deviceStates_${btoa(auth.login)}`;
+}
+
+function getDeviceStates() {
+  return JSON.parse(localStorage.getItem(getUserDeviceStatesKey())) || {};
+}
+
+function setDeviceStates(states) {
+  localStorage.setItem(getUserDeviceStatesKey(), JSON.stringify(states));
+}
+
+/* keep constant name to NOT break structure */
+const DEVICE_STATES = getUserDeviceStatesKey();
+let deviceStates = getDeviceStates();
+
+/* REMOVE destructive reset */
+/* localStorage.removeItem(DEVICE_STATES); */
+/* localStorage.setItem(DEVICE_STATES, JSON.stringify(deviceStates)); */
 
 const btnReload = document.getElementById("btnReload");
 const loading = document.getElementById("loading");
@@ -21,13 +41,9 @@ window.api.onSilentAll(() => {
   console.log(`Received silent device event for ALL`);
   const checkAllCheckbox = document.getElementById("checkAll");
   if (checkAllCheckbox) {
-    // Force the checkbox to be checked (true)
     checkAllCheckbox.checked = true;
-
-    // Manually dispatch the change event
     checkAllCheckbox.dispatchEvent(new Event("change"));
   }
-  // window.location.reload();
 });
 
 btnReload.addEventListener("click", async () => {
@@ -45,7 +61,8 @@ function hideLoading() {
 
 const btnSair = document.getElementById("btnSair");
 btnSair.addEventListener("click", async () => {
-  localStorage.clear();
+  /* ❌ DO NOT CLEAR EVERYTHING */
+  localStorage.removeItem("auth");
 
   await unsubscribeAllDevices();
   window.location.href = "login.html";
@@ -116,19 +133,15 @@ async function getUserData() {
 }
 
 function renderDevices(documents) {
-  // const container = document.getElementById("devicesList");
-  // container.innerHTML = "";
-  allDevices = []; // reset
+  allDevices = [];
   documents.forEach((doc) => {
     doc.devices.forEach((device) => {
-      // renderHtmlDevices(device);
       allDevices.push(device);
     });
   });
 
   sharedDevices.forEach((shared) => {
     shared.forEach((device) => {
-      // renderHtmlDevices(device);
       allDevices.push(device);
     });
   });
@@ -144,6 +157,7 @@ function renderFilteredDevices(devices) {
     renderHtmlDevices(device);
   });
 }
+
 const searchInput = document.getElementById("deviceSearch");
 
 searchInput.addEventListener("input", () => {
@@ -171,7 +185,8 @@ function renderHtmlDevices(device) {
   checkbox.value = device.chipId;
   checkbox.style.cursor = "pointer";
 
-  let deviceStored = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
+  /* ✅ USER-SCOPED LOAD */
+  const deviceStored = getDeviceStates();
   checkbox.checked = deviceStored[device.chipId] ?? false;
 
   const label = document.createElement("label");
@@ -197,10 +212,10 @@ function renderHtmlDevices(device) {
   });
 }
 
-//Silent all
+/* Silent all */
 document.getElementById("checkAll").addEventListener("change", (e) => {
   const checked = e.target.checked;
-  const deviceStates = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
+  const deviceStates = getDeviceStates();
 
   document
     .querySelectorAll("#devicesList input[type='checkbox']")
@@ -209,13 +224,13 @@ document.getElementById("checkAll").addEventListener("change", (e) => {
       deviceStates[cb.id] = checked;
     });
 
-  localStorage.setItem(DEVICE_STATES, JSON.stringify(deviceStates));
+  setDeviceStates(deviceStates);
 });
 
 function updateCheckBoxLocalStorage(chipId, checked) {
-  let deviceStateLocal = JSON.parse(localStorage.getItem(DEVICE_STATES)) || {};
+  const deviceStateLocal = getDeviceStates();
   deviceStateLocal[chipId] = checked;
-  localStorage.setItem("deviceStates", JSON.stringify(deviceStateLocal));
+  setDeviceStates(deviceStateLocal);
 }
 
 async function getToken() {
@@ -234,7 +249,7 @@ async function getToken() {
       password: data.password,
       token: result.token,
       type: result.tipo,
-      expiresAt: expireAt, // convert seconds → milliseconds
+      expiresAt: expireAt,
       createdAt: Date.now(),
     };
     localStorage.setItem("auth", JSON.stringify(dataToStore));
@@ -246,40 +261,30 @@ async function getToken() {
 }
 
 function isTokenExpired(expiresAt) {
-  // Verifica se há uma string no localStorage
   if (expiresAt) {
-    // Obtém a data de expiração do objeto
     const expireAt = new Date(expiresAt);
-
-    // Subtrai 2 horas da data de expiração
     const expirationThreshold = new Date();
-    // expirationThreshold.setMinutes(expirationThreshold.getMinutes() - 2);
-
-    // Compara a data de expiração com a data atual
     return expireAt < expirationThreshold;
   }
-
-  // Retorna true se não houver token ou se ocorrer algum erro na verificação
   return true;
 }
 
 window.api.onMessage(async (msg) => {
-  // console.log("MQTT:", msg.topic, msg.message);
-
   if (msg.topic.includes("/alarm") && msg.message === "1" && !msg.retained) {
     const token = await getToken();
-
     const chipId = msg.topic.substring(0, msg.topic.indexOf("/"));
     const res = await window.api.getDevice(chipId, token);
 
-    let deviceSettings = JSON.parse(localStorage.getItem("deviceStates")) || {};
+    /* ✅ USER-SCOPED READ */
+    const deviceSettings = getDeviceStates();
     const deviceLocal = deviceSettings[chipId];
+
     window.api.openAlarm(res.descricao, chipId, deviceLocal ?? false);
   }
 });
 
 window.api.onConnect(async () => {
-  if (mqttInitialized) return; // ✅ prevents multiple executions
+  if (mqttInitialized) return;
   mqttInitialized = true;
   console.log("- MQTT connected from renderer");
   try {
