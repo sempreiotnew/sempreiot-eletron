@@ -4,7 +4,7 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const mqtt = require("mqtt");
 const fetch = require("node-fetch");
-
+const alarmWindows = [];
 let client = null;
 let mainWindow = null; // FIX: store reference
 
@@ -249,6 +249,35 @@ ipcMain.handle("open-alarm", (_, descricao, chipId, silent) => {
   silent ? null : createAlarmWindow(descricao, chipId);
 });
 
+// ipcMain.handle("start-count-close-all", (_, seconds) => {
+//   alarmWindows.forEach((win) => {
+//     win.webContents.send("start-count-close", seconds); // envia evento para cada janela
+//   });
+// });
+
+ipcMain.handle("start-count-close-all", (_, seconds, chipId) => {
+  // Remove destroyed windows from the array
+  for (let i = alarmWindows.length - 1; i >= 0; i--) {
+    if (alarmWindows[i].isDestroyed()) {
+      alarmWindows.splice(i, 1);
+    }
+  }
+
+  // Send event only to alive windows
+  alarmWindows.forEach((win) => {
+    if (!win.isDestroyed()) {
+      //if chipId was sent, then check the id of each screen
+      if (chipId) {
+        if (chipId === win.chipId) {
+          win.webContents.send("start-count-close", seconds);
+        }
+      } else {
+        win.webContents.send("start-count-close", seconds);
+      }
+    }
+  });
+});
+
 ipcMain.on("silent-device", (event, chipId) => {
   console.log(`Silent chipId: ${chipId}`);
 
@@ -277,11 +306,16 @@ function createAlarmWindow(descricao, chipId) {
     },
   });
 
+  alarmWin.chipId = chipId;
   alarmWin.loadFile(path.join(__dirname, "ui/alarm.html"), {
     query: { descricao, chipId },
   });
 
   alarmWin.on("close", () => {
+    const index = alarmWindows.indexOf(alarmWin);
+    if (index > -1) alarmWindows.splice(index, 1);
     alarmWin.destroy();
   });
+
+  alarmWindows.push(alarmWin);
 }

@@ -34,4 +34,9 @@ contextBridge.exposeInMainWorld("api", {
     ipcRenderer.on("silent-all", (event) => callback()),
   onSilentDevice: (callback) =>
     ipcRenderer.on("silent-device", (event, chipId) => callback(chipId)),
+
+  startCountCloseAll: (seconds, chipId) =>
+    ipcRenderer.invoke("start-count-close-all", seconds, chipId),
+  onStartCountClose: (callback) =>
+    ipcRenderer.on("start-count-close", (_, seconds) => callback(seconds)),
 });

@@ -1,6 +1,8 @@
 let documents = [];
 let sharedDevices = [];
 let mqttInitialized = false;
+const auth = JSON.parse(localStorage.getItem("auth")) || {};
+document.getElementById("userName").textContent = auth.name || "";
 document.title = "Sempre IoT - Alarmes";
 
 /* ===================== */
@@ -24,10 +26,6 @@ function setDeviceStates(states) {
 const DEVICE_STATES = getUserDeviceStatesKey();
 let deviceStates = getDeviceStates();
 
-/* REMOVE destructive reset */
-/* localStorage.removeItem(DEVICE_STATES); */
-/* localStorage.setItem(DEVICE_STATES, JSON.stringify(deviceStates)); */
-
 const btnReload = document.getElementById("btnReload");
 const loading = document.getElementById("loading");
 
@@ -50,6 +48,20 @@ btnReload.addEventListener("click", async () => {
   await unsubscribeAllDevices();
   window.location.reload();
 });
+
+//Avatar
+
+function setUserName(fullName, data) {
+  const newAuth = { ...data, name: fullName };
+  localStorage.setItem("auth", JSON.stringify(newAuth));
+  document.getElementById("userName").textContent = fullName;
+
+  // Optionally set a custom avatar
+  const avatarImg = document.getElementById("avatarImg");
+  if (document.avatarUrl) {
+    avatarImg.src = document.avatarUrl;
+  }
+}
 
 function showLoading() {
   loading.style.display = "block";
@@ -98,6 +110,8 @@ async function getUserData() {
   const token = await getToken();
 
   documents = await window.api.getDocument(data.login, token);
+  setUserName(`${documents[0].nome} ${documents[0].sobrenome}`, data);
+
   const shared = documents[0].contratosCompartilhado;
 
   documents.forEach((document) => {
@@ -291,7 +305,7 @@ window.api.onConnect(async () => {
     showLoading();
     await getUserData();
   } catch (err) {
-    console.err(err);
+    console.log(err);
     console.log("something went wrong");
   } finally {
     hideLoading();

@@ -30,6 +30,7 @@ email.addEventListener("input", () => {
 
   // Get the raw input (cleaned from non-numeric characters)
   const raw = email.value.replace(/\D/g, "");
+
   rawValueCpfCnpj = raw;
   // Format the cleaned value to CPF or CNPJ format
   const formatted = getCpfCnpjFormmated(raw);

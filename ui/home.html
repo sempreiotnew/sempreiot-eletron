@@ -1,40 +1,81 @@
 <style>
+  /* Top bar container */
+  .top-bar {
+    position: relative;
+    height: 60px; /* fixed height */
+    padding: 0 15px;
+  }
+
+  /* User avatar on top-left */
+  .user-avatar {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    color: #152f55;
+  }
+
+  .user-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  /* Logo centered */
   .logo {
+    position: absolute;
+    top: 50%;
+    margin-top: 20px;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     justify-content: center;
     align-items: center;
   }
 
+  /* Leave button top-right */
+  .leave {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+  }
+
+  .leave button {
+    width: 100px;
+    height: 30px;
+    cursor: pointer;
+    background-color: red;
+    color: white;
+    border-radius: 12px;
+    border-color: transparent;
+    font-weight: bold;
+  }
+
+  /* Reload button below top-bar */
   .reload {
     display: flex;
     justify-content: center;
-    margin-top: 12px;
-    button {
-      width: 200px;
-      height: 40px;
-      cursor: pointer;
-      color: white;
-      background-color: #152f55;
-      border-radius: 12px;
-      font-weight: bold;
-    }
+    margin: 80px 0 12px; /* push it below top-bar */
   }
 
-  .leave {
-    display: flex;
-    justify-content: flex-end;
-    button {
-      width: 100px;
-      height: 30px;
-      cursor: pointer;
-      background-color: red;
-      color: white;
-      border-radius: 12px;
-      border-color: transparent;
-      font-weight: bold;
-    }
+  .reload button {
+    width: 200px;
+    height: 40px;
+    cursor: pointer;
+    color: white;
+    background-color: #152f55;
+    border-radius: 12px;
+    font-weight: bold;
   }
 
+  /* Loading spinner */
   .spinner {
     width: 40px;
     height: 40px;
@@ -54,6 +95,7 @@
     }
   }
 
+  /* Devices list */
   .devices-wrapper {
     margin-top: 20px;
     width: 100%;
@@ -90,21 +132,30 @@
   }
 </style>
 
-<div class="logo">
-  <img src="../logo_no_shadow.png" width="100px" alt="Logo" />
+<div class="top-bar">
+  <div class="user-avatar">
+    <img id="avatarImg" src="../avatar.png" alt="Avatar" />
+    <span id="userName"></span>
+  </div>
+
+  <div class="logo">
+    <img src="../logo_no_shadow.png" width="100px" alt="Logo" />
+  </div>
+
+  <div class="leave">
+    <button id="btnSair">SAIR</button>
+  </div>
 </div>
 
+<!-- Move reload button OUTSIDE top-bar -->
 <div class="reload">
   <button id="btnReload">Recarregar dispositivos</button>
-</div>
-
-<div class="leave">
-  <button id="btnSair">SAIR</button>
 </div>
 
 <div id="loading" style="display: none; margin-top: 15px">
   <div class="spinner"></div>
 </div>
+
 <div style="max-width: 500px; margin: 15px auto 0">
   <input
     id="deviceSearch"
@@ -119,6 +170,7 @@
     "
   />
 </div>
+
 <div class="devices-wrapper">
   <div class="devices-header">
     <span>
