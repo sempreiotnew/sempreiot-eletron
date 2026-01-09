@@ -172,6 +172,8 @@ function renderFilteredDevices(devices) {
   devices.forEach((device) => {
     renderHtmlDevices(device);
   });
+
+  checkBoxAllHandler();
 }
 
 const searchInput = document.getElementById("deviceSearch");
@@ -216,16 +218,16 @@ function renderHtmlDevices(device) {
 
   checkbox.addEventListener("change", () => {
     updateCheckBoxLocalStorage(device.chipId, checkbox.checked);
-
-    const all = document.querySelectorAll(
-      "#devicesList input[type='checkbox']"
-    );
-    const checked = document.querySelectorAll(
-      "#devicesList input[type='checkbox']:checked"
-    );
-
-    document.getElementById("checkAll").checked = all.length === checked.length;
+    checkBoxAllHandler();
   });
+}
+
+function checkBoxAllHandler() {
+  const states = getDeviceStates();
+  const allChecked =
+    Object.values(states).length > 0 && Object.values(states).every(Boolean);
+
+  document.getElementById("checkAll").checked = allChecked;
 }
 
 /* Silent all */
@@ -264,8 +266,8 @@ async function getToken() {
     expireAt.getMinutes(expireAt.getMinutes() + 2).toLocaleString();
 
     const dataToStore = {
-      login: btoa(data.login),
-      password: btoa(data.password),
+      login: data.login,
+      password: data.password,
       token: result.token,
       type: result.tipo,
       expiresAt: expireAt,
