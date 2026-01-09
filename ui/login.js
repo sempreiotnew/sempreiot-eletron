@@ -96,9 +96,9 @@ function automaticLogin() {
 
   if (data) {
     console.log("Auto LOGIN");
-    email.value = getCpfCnpjFormmated(data.login);
-    password.value = data.password;
-    signIn(data.login, data.password);
+    email.value = getCpfCnpjFormmated(atob(data.login));
+    password.value = atob(data.password);
+    signIn(atob(data.login), atob(data.password));
   }
 }
 
@@ -112,8 +112,8 @@ async function signIn(login, password) {
     const expireAt = new Date();
     expireAt.getMinutes(expireAt.getMinutes() + 2).toLocaleString();
     const dataToStore = {
-      login: login,
-      password: password,
+      login: btoa(login),
+      password: btoa(password),
       token: result.token,
       type: result.tipo,
       expiresAt: expireAt,

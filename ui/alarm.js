@@ -4,7 +4,7 @@ const btnSilent = document.getElementById("btnSilent");
 const btnSilentAll = document.getElementById("btnSilentAll");
 
 let deviceStateLocal = JSON.parse(
-  localStorage.getItem(`deviceStates_${btoa(auth.login)}`) || "{}"
+  localStorage.getItem(`deviceStates_${auth.login}`) || "{}"
 );
 const silentAlarmDevice = deviceStateLocal[dataParam.chipId];
 

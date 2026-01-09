@@ -11,7 +11,7 @@ document.title = "Sempre IoT - Alarmes";
 function getUserDeviceStatesKey() {
   const auth = JSON.parse(localStorage.getItem("auth"));
   if (!auth?.login) return "deviceStates_anonymous";
-  return `deviceStates_${btoa(auth.login)}`;
+  return `deviceStates_${auth.login}`;
 }
 
 function getDeviceStates() {
@@ -109,7 +109,7 @@ async function getUserData() {
   const data = JSON.parse(auth);
   const token = await getToken();
 
-  documents = await window.api.getDocument(data.login, token);
+  documents = await window.api.getDocument(atob(data.login), token);
   setUserName(`${documents[0].nome} ${documents[0].sobrenome}`, data);
 
   const shared = documents[0].contratosCompartilhado;
@@ -253,14 +253,17 @@ async function getToken() {
 
   if (isTokenExpired(data.expiresAt)) {
     console.log("TOKEN EXPIRADO !!!!!");
-    const result = await window.api.login(data.login, data.password);
+    const result = await window.api.login(
+      atob(data.login),
+      atob(data.password)
+    );
 
     const expireAt = new Date();
     expireAt.getMinutes(expireAt.getMinutes() + 2).toLocaleString();
 
     const dataToStore = {
-      login: data.login,
-      password: data.password,
+      login: btoa(data.login),
+      password: btoa(data.password),
       token: result.token,
       type: result.tipo,
       expiresAt: expireAt,
