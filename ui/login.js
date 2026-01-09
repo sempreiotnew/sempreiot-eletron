@@ -26,31 +26,37 @@ function getCpfCnpjFormmated(cpfCnpj) {
 }
 
 email.addEventListener("input", () => {
-  const cursorPosition = email.selectionStart; // Track the current cursor position
+  const cursorPos = email.selectionStart;
+  const valueBefore = email.value;
 
-  // Get the raw input (cleaned from non-numeric characters)
-  const raw = email.value.replace(/\D/g, "");
+  // Count how many digits existed BEFORE cursor
+  const digitsBeforeCursor = valueBefore
+    .slice(0, cursorPos)
+    .replace(/\D/g, "").length;
 
+  // Get raw digits
+  const raw = valueBefore.replace(/\D/g, "");
   rawValueCpfCnpj = raw;
-  // Format the cleaned value to CPF or CNPJ format
-  const formatted = getCpfCnpjFormmated(raw);
 
-  // Set the value back to the formatted input
+  // Format
+  const formatted = getCpfCnpjFormmated(raw);
   email.value = formatted;
 
-  // Adjust the cursor position after the formatting
-  let newCursorPosition = cursorPosition;
+  // Reposition cursor based on digit index
+  let newCursorPos = 0;
+  let digitsSeen = 0;
 
-  // If the cursor is within the CPF or CNPJ mask, adjust the cursor position accordingly
-  if (raw.length < cleanedValue.length) {
-    // When the user is typing and the value length is increasing, we need to move the cursor
-    newCursorPosition += 1;
-  } else if (raw.length > cleanedValue.length) {
-    // When the user is deleting, we need to move the cursor back
-    newCursorPosition -= 1;
+  for (let i = 0; i < formatted.length; i++) {
+    if (/\d/.test(formatted[i])) {
+      digitsSeen++;
+    }
+    if (digitsSeen === digitsBeforeCursor) {
+      newCursorPos = i + 1;
+      break;
+    }
   }
 
-  email.setSelectionRange(newCursorPosition, newCursorPosition); // Restore the cursor position
+  email.setSelectionRange(newCursorPos, newCursorPos);
 });
 
 function getCpfCnpjFormmated(cpfCnpj) {
