@@ -124,14 +124,16 @@ async function getUserData() {
     shared.map(async (s) => {
       const res = await window.api.getDeviceShared(
         s.contratoShared,
-        data.login,
+        atob(data.login),
         token
       );
 
       const filteredDevices = res[0].devices
         .map((device) => ({
           ...device,
-          grupo: device.grupo.filter((g) => g.loginCelular === data.login),
+          grupo: device.grupo.filter(
+            (g) => g.loginCelular === atob(data.login)
+          ),
         }))
         .filter((device) => device.grupo.length > 0);
 
