@@ -82,7 +82,6 @@ async function stopProcedures(isAll) {
       window.api.startCountCloseAll(10);
     } else {
       silentDevice();
-      // onCountClose(5);
       window.api.startCountCloseAll(10, dataParam.chipId);
     }
   }

@@ -120,20 +120,27 @@
     color: rgb(201, 190, 190);
     text-align: center;
   }
+
+  .btn-icon {
+    width: 40px;
+    height: 40px;
+  }
 </style>
 
 <div id="alarmContainer">
   <div id="alarmText"></div>
   <div id="alarmDate"></div>
-  <img src="sirene.gif" id="sirene" alt="Siren" />
+  <img src="icons/sirene.gif" id="sirene" alt="Siren" />
 
   <div class="alarm-actions">
     <button id="btnSilent" class="alarm-btn single">
-      🔕 Silenciar este dispositivo
+      <img src="icons/silent-device.png" class="btn-icon" />
+      <div>Silenciar este dispositivo</div>
     </button>
 
     <button id="btnSilentAll" class="alarm-btn all">
-      🔇 Silenciar TODOS dispositivos
+      <img src="icons/silent-all.png" class="btn-icon" />
+      <div>Silenciar TODOS dispositivos</div>
     </button>
   </div>
   <div id="alarmStatus" style="display: none"></div>
