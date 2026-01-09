@@ -130,6 +130,65 @@
   .devices-header span:first-child {
     text-align: center;
   }
+
+  /* Toast container */
+  #toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+  }
+
+  /* Toast item */
+  .toast {
+    background-color: #152f55;
+    /* background-color: #2a589c; */
+    color: white;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    min-width: 240px;
+    max-width: 320px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.25s ease-out, fadeOut 0.3s ease-in 2.7s forwards;
+  }
+
+  .toast-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  .toast img {
+    filter: invert(45%) sepia(80%) saturate(500%) hue-rotate(180deg);
+  }
+
+  /* Animations */
+  @keyframes slideIn {
+    from {
+      transform: translateX(30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOut {
+    to {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+  }
 </style>
 
 <div class="top-bar">
@@ -182,5 +241,7 @@
 
   <div id="devicesList"></div>
 </div>
+
+<div id="toast-container"></div>
 
 <script src="home.js"></script>

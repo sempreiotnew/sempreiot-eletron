@@ -50,7 +50,6 @@ btnReload.addEventListener("click", async () => {
 });
 
 //Avatar
-
 function setUserName(fullName, data) {
   const newAuth = { ...data, name: fullName };
   localStorage.setItem("auth", JSON.stringify(newAuth));
@@ -61,6 +60,53 @@ function setUserName(fullName, data) {
   if (document.avatarUrl) {
     avatarImg.src = document.avatarUrl;
   }
+}
+
+//Toast
+// function showToast(message) {
+//   const container = document.getElementById("toast-container");
+
+//   const toast = document.createElement("div");
+//   toast.className = "toast";
+//   toast.textContent = message;
+
+//   container.appendChild(toast);
+
+//   // Remove after 3s
+//   setTimeout(() => {
+//     toast.remove();
+//   }, 3000);
+// }
+
+function showToast(active, message, type = "single") {
+  const container = document.getElementById("toast-container");
+
+  const toast = document.createElement("div");
+  toast.className = "toast";
+
+  const img = document.createElement("img");
+  img.className = "toast-icon";
+
+  // Choose image based on type
+  if (active) {
+    img.src =
+      type === "all" ? "icons/silent-all.png" : "icons/silent-device.png";
+  } else {
+    img.src = "icons/unmute-device.png";
+  }
+
+  if (type === "all") toast.style.backgroundColor = "#2a589c";
+  const text = document.createElement("span");
+  text.textContent = message;
+
+  toast.appendChild(img);
+  toast.appendChild(text);
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
 }
 
 function showLoading() {
@@ -219,6 +265,13 @@ function renderHtmlDevices(device) {
   checkbox.addEventListener("change", () => {
     updateCheckBoxLocalStorage(device.chipId, checkbox.checked);
     checkBoxAllHandler();
+    showToast(
+      checkbox.checked,
+      checkbox.checked
+        ? `SILENCIADO - ${device.descricao || device.chipId}`
+        : `ATIVO - ${device.descricao || device.chipId}`,
+      "single"
+    );
   });
 }
 
@@ -243,6 +296,7 @@ document.getElementById("checkAll").addEventListener("change", (e) => {
     });
 
   setDeviceStates(deviceStates);
+  showToast(checked, checked ? `SILENCIADO - TODOS` : `ATIVO - TODOS`, "all");
 });
 
 function updateCheckBoxLocalStorage(chipId, checked) {
