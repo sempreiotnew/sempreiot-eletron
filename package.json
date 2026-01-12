@@ -42,7 +42,7 @@
       ]
     },
     "linux": {
-      "icon": "logo_no_shadow_512x512.ico",
+      "icon": "logo_no_shadow.png",
       "target": [
         "AppImage",
         "deb"
