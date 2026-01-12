@@ -81,11 +81,21 @@
 
   /* Silenciar este dispositivo */
   .alarm-btn.single {
-    background-color: white;
+    background-color: rgb(235, 135, 135);
     color: #b00000;
   }
 
   .alarm-btn.single:hover {
+    background-color: white;
+  }
+
+  /* Dipensar */
+  .alarm-btn.dismiss {
+    background-color: white;
+    color: #b00000;
+  }
+
+  .alarm-btn.dismiss:hover {
     background-color: #ffe5e5;
   }
 
@@ -133,6 +143,11 @@
   <img src="icons/sirene.gif" id="sirene" alt="Siren" />
 
   <div class="alarm-actions">
+    <button id="btnDismiss" class="alarm-btn dismiss">
+      <img src="icons/dismiss-cross.png" class="btn-icon" />
+      <div>Dispensar Alarme</div>
+    </button>
+
     <button id="btnSilent" class="alarm-btn single">
       <img src="icons/silent-device.png" class="btn-icon" />
       <div>Silenciar este dispositivo</div>

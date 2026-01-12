@@ -53,8 +53,13 @@ function handleButton() {
   const alarmStatus = document.getElementById("alarmStatus");
   const alarmActions = document.querySelector(".alarm-actions");
   const closeBtn = document.getElementById("closeAlarmBtn");
+  const dismissBtn = document.getElementById("btnDismiss");
 
   closeBtn.addEventListener("click", () => {
+    window.close();
+  });
+
+  dismissBtn.addEventListener("click", () => {
     window.close();
   });
 

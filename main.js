@@ -293,8 +293,8 @@ ipcMain.on("silent-all", (event) => {
 });
 function createAlarmWindow(descricao, chipId) {
   const alarmWin = new BrowserWindow({
-    width: 500,
-    height: 450,
+    width: 600,
+    height: 650,
     alwaysOnTop: true,
     modal: true,
     title: "ATENÇÃO ALARME 🚨",
