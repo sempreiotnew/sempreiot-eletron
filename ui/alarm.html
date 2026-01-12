@@ -60,14 +60,14 @@
     background: #ffdddd;
   }
 
-  .alarm-actions {
+  .alarm-actions,
+  .alarm-close {
     display: flex;
     flex-direction: column;
     gap: 12px;
     margin-top: 20px;
     width: 360px;
   }
-
   .alarm-btn {
     padding: 14px 18px;
     border-radius: 14px;
@@ -142,12 +142,14 @@
   <div id="alarmDate"></div>
   <img src="icons/sirene.gif" id="sirene" alt="Siren" />
 
-  <div class="alarm-actions">
+  <div class="alarm-close">
     <button id="btnDismiss" class="alarm-btn dismiss">
       <img src="icons/dismiss-cross.png" class="btn-icon" />
       <div>Dispensar Alarme</div>
     </button>
+  </div>
 
+  <div class="alarm-actions">
     <button id="btnSilent" class="alarm-btn single">
       <img src="icons/silent-device.png" class="btn-icon" />
       <div>Silenciar este dispositivo</div>
