@@ -253,6 +253,12 @@ function renderHtmlDevices(device) {
   const deviceStored = getDeviceStates();
   checkbox.checked = deviceStored[device.chipId] ?? false;
 
+  // 🔥 FIX: initialize missing chipIds
+  if (!(device.chipId in deviceStored)) {
+    deviceStored[device.chipId] = false;
+    setDeviceStates(deviceStored);
+  }
+
   const label = document.createElement("label");
   label.htmlFor = device.chipId;
   label.textContent = device.descricao || device.chipId;
